@@ -1,0 +1,184 @@
+---
+title: "Supplemental Material-Performance Metrics"
+author: "Nate Olson"
+date: "August 18, 2014"
+output: html_document
+---
+
+```{r echo = F, message=FALSE}
+## SNP review figures with uncertianty
+library(stringr)
+library(reshape2)
+library(ggplot2)
+library(ROCR)
+library(plyr)
+```
+
+```{r echo = F, warning=FALSE, message=FALSE}
+snp_vcf_files <- list.files()[grep("^S.*vcf$", c(list.files()), value = F)]
+
+#%#%#% generating a dataframe combining the pileup parse files
+
+snp_caller_gatk = data.frame()
+for(i in 1:length(snp_vcf_files)){
+  fileTable <- read.table(snp_vcf_files[i], header = F, sep = "\t")
+  colnames(fileTable) <- c("Control", "Location", "ID", "reference","alternative","qual", 
+                           "filter","INFO","FORMAT","other")
+  fileTable$dataset <- snp_vcf_files[i]#gsub(".sort.realign.vcf", "",snp_vcf_files[i])
+  snp_caller_gatk <- rbind(snp_caller_gatk, fileTable)
+}
+remove(fileTable, i, snp_vcf_files)
+
+snp_caller_gatk$dataset <- gsub("_L001_","",snp_caller_gatk$dataset)
+snp_caller_gatk$dataset <- gsub("R1_001","",snp_caller_gatk$dataset)
+
+
+# defining ture variants as variants with median quality scores of greater than 2000
+snp_summary <- ddply(snp_caller_gatk, .(Control, Location), summarize, count = length(dataset), medqual = median(qual))
+snp_summary$ref_call <- 1
+snp_summary$ref_call[snp_summary$medqual < 2500] <- 0
+#resulting in 48 positive and 41 negatives
+
+snp_caller_gatk$dataset <- str_replace(snp_caller_gatk$dataset,".vcf",replacement="")
+snp_caller_gatk$dataset <- str_replace(snp_caller_gatk$dataset,".sort",replacement="")
+snp_caller_gatk$dataset <- str_replace(snp_caller_gatk$dataset,".realign",replacement="")
+snp_calls <- subset(snp_caller_gatk, 
+                    select = c(Control, Location, qual, dataset))
+snp_calls$class <- "UG"
+snp_calls$class[grep("hc", snp_calls$dataset)] <- "HC"
+
+#setting max value of qual to 5000
+snp_calls$qual[snp_calls$qual > 5000] <- 5000
+snp_calls <- dcast(snp_calls, Control*Location~dataset, value.var="qual", fill=0)
+snp_calls <- join(snp_calls, snp_summary)
+snp_calls <- subset(snp_calls, select = -c(count,medqual, Control, Location))
+
+```
+
+To demonstrate the different performance metrics that can be used to evaluate SNP calling pipeline we used variant calls for sequence datasets for the NIST *S. enterica* genomic DNA reference material.  While we are in the process of characterizing the materials the results presented here and in the main manuscript are for demonstration purposes and the variants identified as true variants were defined solely for demonstration purposes and not represent a known biological variant.  
+
+To generate the demonstartion data sequence data for eight replicate vials of the *S. enterica* NIST microbial genomic DNS reference material was mapped to a *Salmonella enterica* serovar Typhimurium LT2 reference genome in the GenBank database (NC_003197 and NC_003277) using the BWA MEM mapping algorithm (http://bio-bwa.sourceforge.net/).  Variants were called using the GenomeAnalysisTK UnifiedGenotyper and Haplotype caller, variant calling algorithm (https://www.broadinstitute.org/gatk/).  The union of the variant call sets was defined as the variant population.  Variants with median quality scores less then 2500 were defined as false positives.  This value was selected as it provided approximately equal numbers of positive (n = `r sum(snp_calls$ref)` and negative (n = `r nrow(snp_calls) - sum(snp_calls$ref)`) variants in the truth set.  Additionally, for demonstration purposes quality scores were cut off at 5000 and for individual variant call sets where variants in the truth set were not called a quality score of zero was assigned.
+
+The ROCR package was used to calcuate the performance metrics and ggplot2 was used to plot the performance metrics.  See the github site for code use to generate this document and the generate the demonstration dataset
+
+```{r echo = F, warning=FALSE, message=FALSE}
+## predictions 
+predict.UG <- as.list(snp_calls[,seq(1,ncol(snp_calls)-1,2)])
+predict.HC <- as.list(snp_calls[,seq(2,ncol(snp_calls)-1,2)])
+labels <- matrix(rep(snp_calls$ref_call,ncol(snp_calls)-1),nrow=nrow(snp_calls),ncol=(ncol(snp_calls)-1)/2,byrow=F)
+pred.UG <- prediction(predict.UG, labels)
+pred.HC <- prediction(predict.HC, labels)
+
+
+perfS4Todf <- function(perf){
+    perf_df <- data.frame()
+    for(i in 1:length(perf@x.values)){
+        df <- data.frame(x.value= perf@x.values[[i]], y.value = perf@y.values[[i]]) 
+        df$name <- i
+        perf_df <- rbind(perf_df, df)
+    }
+    perf_df$x.value[is.infinite(perf_df$x.value)] <- 5000
+    return(perf_df)
+}
+
+perf_plot <- function(perf_df, i){ 
+    return(ggplot(perf_df) + 
+               geom_smooth(aes(x = x.value,y = y.value, color = class)) +
+               labs(x= "Quality Score", y =  i, color = "Algorithm") + 
+               theme_bw())
+}
+
+perf_merge <- function(ds1, ds2, name1, name2, metric, metric.2 = NULL){
+    if(is.null(metric.2)){
+        perf.1 <- performance(ds1, metric)
+        perf.2 <- performance(ds2, metric) 
+    }else{
+        perf.1 <- performance(ds1, metric, metric.2)
+        perf.2 <- performance(ds2, metric, metric.2)
+    }
+    #dataset 1
+    perf.1.df <- perfS4Todf(perf.1)
+    perf.1.df$class <- name1
+    perf.1.df$metric <- metric
+    
+    #dataset 2
+    perf.2.df <- perfS4Todf(perf.2)
+    perf.2.df$class <- name2
+    perf.2.df$metric <- metric
+    
+    return(rbind(perf.1.df,perf.2.df))  
+}
+```
+
+
+## 2D plot performance metric vs quality score
+Shaded region indicates the 95% confidence interval calculated from the eight replicate datasets.
+
+```{r echo = F, warning=FALSE, message=FALSE}
+metrics <- as.list(c("acc", "spec","sens","prec","fpr"))
+single_metrics_df <- ldply(.data = metrics,ds1 = pred.HC, ds2 = pred.UG,name1 = "Haplotype Caller", name2 = "Unified Genotyper",.fun = perf_merge)
+single_metrics_df$metric[single_metrics_df$metric == "acc"] <- "Accuracy"
+single_metrics_df$metric[single_metrics_df$metric == "spec"] <- "Specificity"
+single_metrics_df$metric[single_metrics_df$metric == "sens"] <- "Sensitivity"
+single_metrics_df$metric[single_metrics_df$metric == "prec"] <- "Precision"
+single_metrics_df$metric[single_metrics_df$metric == "fpr"] <- "False positive rate"
+
+ggplot(single_metrics_df) + 
+    geom_vline(aes(xintercept = 3195.79), linetype = 2) + 
+    geom_smooth(aes(x = x.value, y = y.value, color = class)) + 
+    facet_wrap(~metric, ncol = 1)  +
+    labs(x= "Quality Score", y =  "Metric Value", color = "Algorithm") + 
+    theme_bw()
+ggplot(single_metrics_df[single_metrics_df$x.value == 3195.79,]) + geom_boxplot(aes(x = class, y = y.value)) + 
+    facet_wrap(~metric, ncol = 1)  +
+    labs(x= "Algorithm", y =  "Metric Value") + 
+    theme_bw()
+```
+
+## Pairwise plots
+```{r echo = F, warning=FALSE, message=FALSE}
+perf1 <- perf_merge(pred.HC, pred.UG,"HC","UG", "tpr","fpr")
+ggplot(perf1) + 
+    geom_smooth(aes(x = x.value,y = y.value, color = class)) +
+    labs(x= "Sensitivity", y = "False Positive Rate", color = "Algorithm") + 
+    theme_bw()
+```
+
+## precision/recall curve 
+```{r echo=F, warning=FALSE, message=FALSE}
+perf2 <- perf_merge(pred.HC, pred.UG,"HC","UG", "rec","prec")
+ggplot(perf2) + 
+    geom_smooth(aes(x = x.value,y = y.value, color = class)) +
+    labs(x= "Precision", y = "Recall", color = "Algorithm") + 
+    theme_bw()
+```
+
+## sensitivity/specificity curve (x-axis: specificity, y-axis: sensitivity)
+```{r echo = F, warning=FALSE, message=FALSE}
+perf3 <- perf_merge(pred.HC, pred.UG,"HC","UG", "sens","spec")
+ggplot(perf3) + 
+    geom_smooth(aes(x = x.value,y = y.value, color = class)) +
+    labs(x= "Spectivity", y = "Sensitivity", color = "Algorithm") + 
+    theme_bw()
+```
+
+## 2D static scatter plot
+```{r echo = F, warning=FALSE, message=FALSE}
+twoMetric <- single_metrics_df[single_metrics_df$x.value == 3195.79 & single_metrics_df$metric %in% c("Specificity", "Sensitivity"),]
+twoMetricSummary <- ddply(twoMetric, .(class, metric), summarize, metric_mean = mean(y.value), 
+      lci = quantile(y.value, probs = c(0.025)),
+      uci = quantile(y.value, probs = c(0.975)))
+metric_means <- dcast(twoMetricSummary, class~metric, value.var = "metric_mean")
+metric_uci <- dcast(twoMetricSummary, class~metric, value.var = "uci")
+metric_lci <- dcast(twoMetricSummary, class~metric, value.var = "lci")
+
+met_summary <- join_all(list(metric_means, metric_uci, metric_lci), by = "class")
+colnames(met_summary) <- c("Algorithm", "sens.mean","spec.mean","sens.uci", "spec.uci","sens.lci", "spec.lci")
+ggplot(met_summary) + geom_point(aes(x = sens.mean, y = spec.mean, color = Algorithm, shape = Algorithm), size = 4) +
+    geom_errorbar(aes(x = sens.mean, ymax = spec.uci,ymin = spec.lci, color = Algorithm), width = 0) +
+    geom_errorbarh(aes(x = sens.mean, y = spec.mean, xmax = sens.uci,xmin = sens.lci, color = Algorithm), height = 0) +
+    ylim(0,1)+xlim(0,1) +
+    theme_bw() +
+    labs(x = "Sensitivity", y = "Specificity") +
+    theme(legend.position = "bottom", legend.position = "horizontal")
+```

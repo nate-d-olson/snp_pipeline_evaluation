@@ -1,0 +1,111 @@
+##fileformat=VCFv4.1
+##FILTER=<ID=LowQual,Description="Low quality">
+##FORMAT=<ID=AD,Number=.,Type=Integer,Description="Allelic depths for the ref and alt alleles in the order listed">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth (reads with MQ=255 or with bad mates are filtered)">
+##FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Genotype Quality">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=PL,Number=G,Type=Integer,Description="Normalized, Phred-scaled likelihoods for genotypes as defined in the VCF specification">
+##GATKCommandLine=<ID=HaplotypeCaller,Version=3.1-1-g07a4bf8,Date="Tue Mar 25 12:35:54 EDT 2014",Epoch=1395765354044,CommandLineOptions="analysis_type=HaplotypeCaller input_file=[S1h-1_S3_L001_R1_001.sort.bam] showFullBamList=false read_buffer_size=null phone_home=AWS gatk_key=null tag=NA read_filter=[] intervals=null excludeIntervals=null interval_set_rule=UNION interval_merging=ALL interval_padding=0 reference_sequence=/media/nolson/second/mirror/Micro_RM/data/LT2_reference.fa nonDeterministicRandomSeed=false disableDithering=false maxRuntime=-1 maxRuntimeUnits=MINUTES downsampling_type=BY_SAMPLE downsample_to_fraction=null downsample_to_coverage=250 baq=OFF baqGapOpenPenalty=40.0 fix_misencoded_quality_scores=false allow_potentially_misencoded_quality_scores=false useOriginalQualities=false defaultBaseQualities=-1 performanceLog=null BQSR=null quantize_quals=0 disable_indel_quals=false emit_original_quals=false preserve_qscores_less_than=6 globalQScorePrior=-1.0 validation_strictness=SILENT remove_program_records=false keep_program_records=false sample_rename_mapping_file=null unsafe=null disable_auto_index_creation_and_locking_when_reading_rods=false num_threads=1 num_cpu_threads_per_data_thread=1 num_io_threads=0 monitorThreadEfficiency=false num_bam_file_handles=null read_group_black_list=null pedigree=[] pedigreeString=[] pedigreeValidationType=STRICT allow_intervals_with_unindexed_bam=false generateShadowBCF=false variant_index_type=DYNAMIC_SEEK variant_index_parameter=-1 logging_level=INFO log_to_file=null help=false version=false out=org.broadinstitute.sting.gatk.io.stubs.VariantContextWriterStub no_cmdline_in_header=org.broadinstitute.sting.gatk.io.stubs.VariantContextWriterStub sites_only=org.broadinstitute.sting.gatk.io.stubs.VariantContextWriterStub bcf=org.broadinstitute.sting.gatk.io.stubs.VariantContextWriterStub likelihoodCalculationEngine=PairHMM heterogeneousKmerSizeResolution=COMBO_MIN graphOutput=null bamOutput=null bam_compression=null disable_bam_indexing=null generate_md5=null simplifyBAM=null bamWriterType=CALLED_HAPLOTYPES dbsnp=(RodBinding name= source=UNBOUND) dontTrimActiveRegions=false maxDiscARExtension=25 maxGGAARExtension=300 paddingAroundIndels=150 paddingAroundSNPs=20 comp=[] annotation=[ClippingRankSumTest, DepthPerSampleHC] excludeAnnotation=[SpanningDeletions, TandemRepeatAnnotator] heterozygosity=0.001 indel_heterozygosity=1.25E-4 genotyping_mode=DISCOVERY standard_min_confidence_threshold_for_calling=30.0 standard_min_confidence_threshold_for_emitting=30.0 alleles=(RodBinding name= source=UNBOUND) max_alternate_alleles=6 input_prior=[] contamination_fraction_to_filter=0.0 contamination_fraction_per_sample_file=null p_nonref_model=EXACT_INDEPENDENT exactcallslog=null kmerSize=[10, 25] dontIncreaseKmerSizesForCycles=false numPruningSamples=1 recoverDanglingHeads=false dontRecoverDanglingTails=false consensus=false emitRefConfidence=NONE GVCFGQBands=[5, 20, 60] indelSizeToEliminateInRefModel=10 min_base_quality_score=10 minPruning=2 gcpHMM=10 includeUmappedReads=false useAllelesTrigger=false useFilteredReadsForAnnotations=false phredScaledGlobalReadMismappingRate=45 maxNumHaplotypesInPopulation=128 mergeVariantsViaLD=false pair_hmm_implementation=LOGLESS_CACHING keepRG=null justDetermineActiveRegions=false dontGenotype=false errorCorrectKmers=false debug=false debugGraphTransformations=false dontUseSoftClippedBases=false captureAssemblyFailureBAM=false allowCyclesInKmerGraphToGeneratePaths=false noFpga=false errorCorrectReads=false kmerLengthForReadErrorCorrection=25 minObservationsForKmerToBeSolid=20 pcr_indel_model=CONSERVATIVE activityProfileOut=null activeRegionOut=null activeRegionIn=null activeRegionExtension=null forceActive=false activeRegionMaxSize=null bandPassSigma=null min_mapping_quality_score=20 filter_reads_with_N_cigar=false filter_mismatching_base_and_quals=false filter_bases_not_stored=false">
+##INFO=<ID=AC,Number=A,Type=Integer,Description="Allele count in genotypes, for each ALT allele, in the same order as listed">
+##INFO=<ID=AF,Number=A,Type=Float,Description="Allele Frequency, for each ALT allele, in the same order as listed">
+##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes">
+##INFO=<ID=BaseQRankSum,Number=1,Type=Float,Description="Z-score from Wilcoxon rank sum test of Alt Vs. Ref base qualities">
+##INFO=<ID=ClippingRankSum,Number=1,Type=Float,Description="Z-score From Wilcoxon rank sum test of Alt vs. Ref number of hard clipped bases">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth; some reads may have been filtered">
+##INFO=<ID=DS,Number=0,Type=Flag,Description="Were any of the samples downsampled?">
+##INFO=<ID=FS,Number=1,Type=Float,Description="Phred-scaled p-value using Fisher's exact test to detect strand bias">
+##INFO=<ID=HaplotypeScore,Number=1,Type=Float,Description="Consistency of the site with at most two segregating haplotypes">
+##INFO=<ID=InbreedingCoeff,Number=1,Type=Float,Description="Inbreeding coefficient as estimated from the genotype likelihoods per-sample when compared against the Hardy-Weinberg expectation">
+##INFO=<ID=MLEAC,Number=A,Type=Integer,Description="Maximum likelihood expectation (MLE) for the allele counts (not necessarily the same as the AC), for each ALT allele, in the same order as listed">
+##INFO=<ID=MLEAF,Number=A,Type=Float,Description="Maximum likelihood expectation (MLE) for the allele frequency (not necessarily the same as the AF), for each ALT allele, in the same order as listed">
+##INFO=<ID=MQ,Number=1,Type=Float,Description="RMS Mapping Quality">
+##INFO=<ID=MQ0,Number=1,Type=Integer,Description="Total Mapping Quality Zero Reads">
+##INFO=<ID=MQRankSum,Number=1,Type=Float,Description="Z-score From Wilcoxon rank sum test of Alt vs. Ref read mapping qualities">
+##INFO=<ID=QD,Number=1,Type=Float,Description="Variant Confidence/Quality by Depth">
+##INFO=<ID=ReadPosRankSum,Number=1,Type=Float,Description="Z-score from Wilcoxon rank sum test of Alt vs. Ref read position bias">
+##contig=<ID=gi|16763390|ref|NC_003197.1|,length=4857432>
+##contig=<ID=gi|17233403|ref|NC_003277.1|,length=93939>
+##reference=file:///media/nolson/second/mirror/Micro_RM/data/LT2_reference.fa
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	LT2
+gi|16763390|ref|NC_003197.1|	180034	.	C	G	4681.77	.	AC=2;AF=1.00;AN=2;DP=106;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=28.20	GT:AD:DP:GQ:PL	1/1:0,106:106:99:4710,319,0
+gi|16763390|ref|NC_003197.1|	180035	.	G	C	4681.77	.	AC=2;AF=1.00;AN=2;DP=105;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=27.28	GT:AD:DP:GQ:PL	1/1:0,105:105:99:4710,319,0
+gi|16763390|ref|NC_003197.1|	184305	.	C	G	3280.77	.	AC=2;AF=1.00;AN=2;DP=77;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=59.96;MQ0=0;QD=28.53	GT:AD:DP:GQ:PL	1/1:0,77:77:99:3309,232,0
+gi|16763390|ref|NC_003197.1|	184306	.	G	C	3280.77	.	AC=2;AF=1.00;AN=2;DP=74;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=59.96;MQ0=0;QD=30.47	GT:AD:DP:GQ:PL	1/1:0,74:74:99:3309,232,0
+gi|16763390|ref|NC_003197.1|	220824	.	G	GC	3058.73	.	AC=2;AF=1.00;AN=2;DP=83;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=27.08	GT:AD:DP:GQ:PL	1/1:0,83:83:99:3096,249,0
+gi|16763390|ref|NC_003197.1|	288835	.	C	T	3710.77	.	AC=2;AF=1.00;AN=2;DP=84;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=26.06	GT:AD:DP:GQ:PL	1/1:0,84:84:99:3739,253,0
+gi|16763390|ref|NC_003197.1|	288843	.	C	A	3710.77	.	AC=2;AF=1.00;AN=2;DP=82;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=31.30	GT:AD:DP:GQ:PL	1/1:0,82:82:99:3739,253,0
+gi|16763390|ref|NC_003197.1|	288853	.	C	T	1984.77	.	AC=2;AF=1.00;AN=2;DP=82;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=24.20	GT:AD:DP:GQ:PL	1/1:0,82:82:99:3690,253,0
+gi|16763390|ref|NC_003197.1|	510550	.	G	GC	4963.73	.	AC=2;AF=1.00;AN=2;DP=124;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=26.06	GT:AD:DP:GQ:PL	1/1:0,124:124:99:5001,373,0
+gi|16763390|ref|NC_003197.1|	520411	.	G	GC	3470.73	.	AC=2;AF=1.00;AN=2;DP=94;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=32.00	GT:AD:DP:GQ:PL	1/1:0,94:94:99:3508,282,0
+gi|16763390|ref|NC_003197.1|	1016587	.	C	G	3302.77	.	AC=2;AF=1.00;AN=2;DP=75;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=36.17	GT:AD:DP:GQ:PL	1/1:0,75:75:99:3331,226,0
+gi|16763390|ref|NC_003197.1|	1016588	.	G	C	3302.77	.	AC=2;AF=1.00;AN=2;DP=74;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=33.33	GT:AD:DP:GQ:PL	1/1:0,74:74:99:3331,226,0
+gi|16763390|ref|NC_003197.1|	1129916	.	ACCTAGGTGCTTGGCG	A	4402.73	.	AC=2;AF=1.00;AN=2;DP=109;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=32.21	GT:AD:DP:GQ:PL	1/1:0,102:102:99:4440,321,0
+gi|16763390|ref|NC_003197.1|	1208418	.	G	GC	1455.73	.	AC=2;AF=1.00;AN=2;DP=43;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=33.85	GT:AD:DP:GQ:PL	1/1:0,42:42:99:1493,126,0
+gi|16763390|ref|NC_003197.1|	1256605	.	G	GC	2752.73	.	AC=2;AF=1.00;AN=2;DP=75;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=25.92	GT:AD:DP:GQ:PL	1/1:0,75:75:99:2790,225,0
+gi|16763390|ref|NC_003197.1|	1357016	.	C	CG	2236.73	.	AC=2;AF=1.00;AN=2;DP=61;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=27.59	GT:AD:DP:GQ:PL	1/1:0,61:61:99:2274,183,0
+gi|16763390|ref|NC_003197.1|	1430155	.	A	AC	2622.73	.	AC=2;AF=1.00;AN=2;DP=80;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=32.78	GT:AD:DP:GQ:PL	1/1:0,72:72:99:2660,216,0
+gi|16763390|ref|NC_003197.1|	1435558	.	TG	T	4019.73	.	AC=2;AF=1.00;AN=2;DP=100;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=26.36	GT:AD:DP:GQ:PL	1/1:0,100:100:99:4057,302,0
+gi|16763390|ref|NC_003197.1|	1503292	.	C	G	3038.77	.	AC=2;AF=1.00;AN=2;DP=69;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=24.59	GT:AD:DP:GQ:PL	1/1:0,69:69:99:3067,208,0
+gi|16763390|ref|NC_003197.1|	1503293	.	G	C	3038.77	.	AC=2;AF=1.00;AN=2;DP=69;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=32.33	GT:AD:DP:GQ:PL	1/1:0,69:69:99:3067,208,0
+gi|16763390|ref|NC_003197.1|	1520176	.	C	G	4860.77	.	AC=2;AF=1.00;AN=2;DP=109;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=30.91	GT:AD:DP:GQ:PL	1/1:0,109:109:99:4889,331,0
+gi|16763390|ref|NC_003197.1|	1520177	.	G	C	4860.77	.	AC=2;AF=1.00;AN=2;DP=110;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=31.36	GT:AD:DP:GQ:PL	1/1:0,110:110:99:4889,331,0
+gi|16763390|ref|NC_003197.1|	1536627	.	C	G	4251.77	.	AC=2;AF=1.00;AN=2;DP=98;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=34.19	GT:AD:DP:GQ:PL	1/1:0,98:98:99:4280,295,0
+gi|16763390|ref|NC_003197.1|	1536628	.	G	C	4251.77	.	AC=2;AF=1.00;AN=2;DP=96;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=28.19	GT:AD:DP:GQ:PL	1/1:0,96:96:99:4280,295,0
+gi|16763390|ref|NC_003197.1|	1543816	.	G	GC	2677.73	.	AC=2;AF=1.00;AN=2;DP=69;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=33.26	GT:AD:DP:GQ:PL	1/1:0,69:69:99:2715,207,0
+gi|16763390|ref|NC_003197.1|	1554186	.	G	GC	2523.73	.	AC=2;AF=1.00;AN=2;DP=69;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=29.91	GT:AD:DP:GQ:PL	1/1:0,69:69:99:2561,206,0
+gi|16763390|ref|NC_003197.1|	1670337	.	T	TC	2166.73	.	AC=2;AF=1.00;AN=2;DP=65;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=33.33	GT:AD:DP:GQ:PL	1/1:0,62:62:99:2204,185,0
+gi|16763390|ref|NC_003197.1|	1715973	.	C	G	3839.77	.	AC=2;AF=1.00;AN=2;DP=87;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=27.39	GT:AD:DP:GQ:PL	1/1:0,87:87:99:3868,262,0
+gi|16763390|ref|NC_003197.1|	1715974	.	G	C	3839.77	.	AC=2;AF=1.00;AN=2;DP=87;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=28.81	GT:AD:DP:GQ:PL	1/1:0,87:87:99:3868,262,0
+gi|16763390|ref|NC_003197.1|	1926893	.	C	CGCG	4176.73	.	AC=2;AF=1.00;AN=2;DP=94;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=27.56	GT:AD:DP:GQ:PL	1/1:0,94:94:99:4214,280,0
+gi|16763390|ref|NC_003197.1|	2191593	.	G	GC	2012.73	.	AC=2;AF=1.00;AN=2;DP=60;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=33.55	GT:AD:DP:GQ:PL	1/1:0,59:59:99:2050,177,0
+gi|16763390|ref|NC_003197.1|	2292159	.	C	CG	2515.73	.	AC=2;AF=1.00;AN=2;DP=68;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=33.99	GT:AD:DP:GQ:PL	1/1:0,68:68:99:2553,204,0
+gi|16763390|ref|NC_003197.1|	2427979	.	C	G	2949.77	.	AC=2;AF=1.00;AN=2;DP=114;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=25.88	GT:AD:DP:GQ:PL	1/1:0,114:114:99:2978,341,0
+gi|16763390|ref|NC_003197.1|	2500654	.	C	G	2627.77	.	AC=2;AF=1.00;AN=2;DP=61;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=29.61	GT:AD:DP:GQ:PL	1/1:0,61:61:99:2656,184,0
+gi|16763390|ref|NC_003197.1|	2500655	.	G	C	2627.77	.	AC=2;AF=1.00;AN=2;DP=59;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=28.39	GT:AD:DP:GQ:PL	1/1:0,59:59:99:2656,184,0
+gi|16763390|ref|NC_003197.1|	2537941	.	C	G	3933.77	.	AC=2;AF=1.00;AN=2;DP=88;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=35.71	GT:AD:DP:GQ:PL	1/1:0,88:88:99:3962,271,0
+gi|16763390|ref|NC_003197.1|	2537942	.	G	C	3933.77	.	AC=2;AF=1.00;AN=2;DP=90;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=23.77	GT:AD:DP:GQ:PL	1/1:0,90:90:99:3962,271,0
+gi|16763390|ref|NC_003197.1|	2550665	.	C	G	3853.77	.	AC=2;AF=1.00;AN=2;DP=88;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=30.41	GT:AD:DP:GQ:PL	1/1:0,88:88:99:3882,265,0
+gi|16763390|ref|NC_003197.1|	2550666	.	G	C	3853.77	.	AC=2;AF=1.00;AN=2;DP=86;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=23.63	GT:AD:DP:GQ:PL	1/1:0,86:86:99:3882,265,0
+gi|16763390|ref|NC_003197.1|	2627555	.	A	AC	2608.73	.	AC=2;AF=1.00;AN=2;DP=79;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=33.02	GT:AD:DP:GQ:PL	1/1:0,71:71:99:2646,213,0
+gi|16763390|ref|NC_003197.1|	2661659	.	G	C	2049.77	.	AC=2;AF=1.00;AN=2;DP=84;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=24.40	GT:AD:DP:GQ:PL	1/1:0,84:84:99:2078,250,0
+gi|16763390|ref|NC_003197.1|	2682821	.	C	CG	3316.73	.	AC=2;AF=1.00;AN=2;DP=99;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=33.50	GT:AD:DP:GQ:PL	1/1:0,95:95:99:3354,285,0
+gi|16763390|ref|NC_003197.1|	2737591	.	G	GC	1523.73	.	AC=2;AF=1.00;AN=2;DP=52;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=56.76;MQ0=0;QD=29.30	GT:AD:DP:GQ:PL	1/1:0,44:44:99:1561,131,0
+gi|16763390|ref|NC_003197.1|	2757548	.	C	CG	2719.73	.	AC=2;AF=1.00;AN=2;DP=77;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=31.68	GT:AD:DP:GQ:PL	1/1:0,74:74:99:2757,222,0
+gi|16763390|ref|NC_003197.1|	2834545	.	G	GC	3029.73	.	AC=2;AF=1.00;AN=2;DP=91;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=33.29	GT:AD:DP:GQ:PL	1/1:0,87:87:99:3067,261,0
+gi|16763390|ref|NC_003197.1|	2996778	.	C	G	1985.77	.	AC=2;AF=1.00;AN=2;DP=45;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=29.74	GT:AD:DP:GQ:PL	1/1:0,45:45:99:2014,135,0
+gi|16763390|ref|NC_003197.1|	2996779	.	G	C	1985.77	.	AC=2;AF=1.00;AN=2;DP=45;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=25.85	GT:AD:DP:GQ:PL	1/1:0,45:45:99:2014,135,0
+gi|16763390|ref|NC_003197.1|	3001700	.	C	CGCG	3690.73	.	AC=2;AF=1.00;AN=2;DP=83;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=36.37	GT:AD:DP:GQ:PL	1/1:0,83:83:99:3728,246,0
+gi|16763390|ref|NC_003197.1|	3123348	.	C	G	2382.77	.	AC=2;AF=1.00;AN=2;DP=55;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=32.57	GT:AD:DP:GQ:PL	1/1:0,55:55:99:2411,166,0
+gi|16763390|ref|NC_003197.1|	3123349	.	G	C	2382.77	.	AC=2;AF=1.00;AN=2;DP=55;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=32.37	GT:AD:DP:GQ:PL	1/1:0,55:55:99:2411,166,0
+gi|16763390|ref|NC_003197.1|	3127648	.	TG	T	1535.73	.	AC=2;AF=1.00;AN=2;DP=45;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=34.13	GT:AD:DP:GQ:PL	1/1:0,44:44:99:1573,133,0
+gi|16763390|ref|NC_003197.1|	3154019	.	C	G	4102.77	.	AC=2;AF=1.00;AN=2;DP=93;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=35.52	GT:AD:DP:GQ:PL	1/1:0,93:93:99:4131,280,0
+gi|16763390|ref|NC_003197.1|	3154020	.	G	C	4102.77	.	AC=2;AF=1.00;AN=2;DP=93;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=28.85	GT:AD:DP:GQ:PL	1/1:0,93:93:99:4131,280,0
+gi|16763390|ref|NC_003197.1|	3219132	.	C	G	3129.77	.	AC=2;AF=1.00;AN=2;DP=71;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=26.01	GT:AD:DP:GQ:PL	1/1:0,71:71:99:3158,214,0
+gi|16763390|ref|NC_003197.1|	3219133	.	G	C	3129.77	.	AC=2;AF=1.00;AN=2;DP=71;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=34.48	GT:AD:DP:GQ:PL	1/1:0,71:71:99:3158,214,0
+gi|16763390|ref|NC_003197.1|	3253332	.	A	AG	2868.73	.	AC=2;AF=1.00;AN=2;DP=86;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=33.36	GT:AD:DP:GQ:PL	1/1:0,83:83:99:2906,249,0
+gi|16763390|ref|NC_003197.1|	3613715	.	A	AG	2600.73	.	AC=2;AF=1.00;AN=2;DP=81;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=32.11	GT:AD:DP:GQ:PL	1/1:0,79:79:99:2638,237,0
+gi|16763390|ref|NC_003197.1|	3657650	.	A	ACGC	3603.73	.	AC=2;AF=1.00;AN=2;DP=81;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=34.51	GT:AD:DP:GQ:PL	1/1:0,81:81:99:3641,242,0
+gi|16763390|ref|NC_003197.1|	3694175	.	C	CG	4790.73	.	AC=2;AF=1.00;AN=2;DP=130;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=25.43	GT:AD:DP:GQ:PL	1/1:0,130:130:99:4828,390,0
+gi|16763390|ref|NC_003197.1|	4031933	.	G	GC	1679.73	.	AC=2;AF=1.00;AN=2;DP=46;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=30.74	GT:AD:DP:GQ:PL	1/1:0,46:46:99:1717,138,0
+gi|16763390|ref|NC_003197.1|	4099877	.	G	C	122.77	.	AC=1;AF=0.500;AN=2;BaseQRankSum=0.169;ClippingRankSum=-1.306;DP=79;FS=2.423;MLEAC=1;MLEAF=0.500;MQ=52.84;MQ0=0;MQRankSum=-5.294;QD=1.55;ReadPosRankSum=0.144	GT:AD:DP:GQ:PL	0/1:64,15:79:99:151,0,1454
+gi|16763390|ref|NC_003197.1|	4350855	.	C	G	2883.77	.	AC=2;AF=1.00;AN=2;DP=69;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=57.83;MQ0=0;QD=32.96	GT:AD:DP:GQ:PL	1/1:0,69:69:99:2912,207,0
+gi|16763390|ref|NC_003197.1|	4350856	.	A	C	2883.77	.	AC=2;AF=1.00;AN=2;DP=61;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=57.54;MQ0=0;QD=29.08	GT:AD:DP:GQ:PL	1/1:0,61:61:99:2912,207,0
+gi|16763390|ref|NC_003197.1|	4384227	.	G	A	2031.77	.	AC=2;AF=1.00;AN=2;BaseQRankSum=1.608;ClippingRankSum=-1.567;DP=84;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;MQRankSum=-1.402;QD=24.19;ReadPosRankSum=1.526	GT:AD:DP:GQ:PL	1/1:1,83:84:99:2060,241,0
+gi|16763390|ref|NC_003197.1|	4433283	.	T	TCG	4173.73	.	AC=2;AF=1.00;AN=2;DP=99;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=30.60	GT:AD:DP:GQ:PL	1/1:0,98:98:99:4211,294,0
+gi|16763390|ref|NC_003197.1|	4459985	.	G	GC	3470.73	.	AC=2;AF=1.00;AN=2;DP=94;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=29.30	GT:AD:DP:GQ:PL	1/1:0,94:94:99:3508,282,0
+gi|16763390|ref|NC_003197.1|	4606271	.	TG	T	2878.73	.	AC=2;AF=1.00;AN=2;DP=80;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=26.61	GT:AD:DP:GQ:PL	1/1:0,78:78:99:2916,236,0
+gi|16763390|ref|NC_003197.1|	4631400	.	C	G	3681.77	.	AC=2;AF=1.00;AN=2;DP=85;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=27.49	GT:AD:DP:GQ:PL	1/1:0,85:85:99:3710,256,0
+gi|16763390|ref|NC_003197.1|	4631401	.	G	C	3681.77	.	AC=2;AF=1.00;AN=2;DP=83;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=32.27	GT:AD:DP:GQ:PL	1/1:0,83:83:99:3710,256,0
+gi|16763390|ref|NC_003197.1|	4673419	.	G	GT	1944.73	.	AC=2;AF=1.00;AN=2;DP=58;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=33.53	GT:AD:DP:GQ:PL	1/1:0,56:56:99:1982,168,0
+gi|16763390|ref|NC_003197.1|	4675814	.	G	GC	2001.73	.	AC=2;AF=1.00;AN=2;DP=58;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=34.51	GT:AD:DP:GQ:PL	1/1:0,58:58:99:2039,174,0
+gi|16763390|ref|NC_003197.1|	4689233	.	A	AG	3170.73	.	AC=2;AF=1.00;AN=2;DP=86;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=25.03	GT:AD:DP:GQ:PL	1/1:0,86:86:99:3208,258,0
+gi|16763390|ref|NC_003197.1|	4832867	.	C	G	3041.77	.	AC=2;AF=1.00;AN=2;DP=70;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=30.18	GT:AD:DP:GQ:PL	1/1:0,70:70:99:3070,211,0
+gi|16763390|ref|NC_003197.1|	4832868	.	G	C	3041.77	.	AC=2;AF=1.00;AN=2;DP=69;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=34.15	GT:AD:DP:GQ:PL	1/1:0,69:69:99:3070,211,0
+gi|17233403|ref|NC_003277.1|	28092	.	GGGCCTA	G	3614.73	.	AC=2;AF=1.00;AN=2;BaseQRankSum=1.659;ClippingRankSum=-1.623;DP=103;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;MQRankSum=1.039;QD=25.30;ReadPosRankSum=0.638	GT:AD:DP:GQ:PL	1/1:1,94:95:99:3652,285,0
+gi|17233403|ref|NC_003277.1|	66096	.	A	C	348.77	.	AC=1;AF=0.500;AN=2;BaseQRankSum=1.115;ClippingRankSum=1.550;DP=25;FS=27.831;MLEAC=1;MLEAF=0.500;MQ=60.00;MQ0=0;MQRankSum=0.517;QD=13.95;ReadPosRankSum=0.680	GT:AD:DP:GQ:PL	0/1:12,13:25:99:377,0,7869
+gi|17233403|ref|NC_003277.1|	66101	.	AT	A	339.73	.	AC=1;AF=0.500;AN=2;BaseQRankSum=2.718;ClippingRankSum=2.308;DP=26;FS=22.825;MLEAC=1;MLEAF=0.500;MQ=60.00;MQ0=0;MQRankSum=-0.103;QD=13.07;ReadPosRankSum=0.205	GT:AD:DP:GQ:PL	0/1:13,13:26:99:377,0,7869
+gi|17233403|ref|NC_003277.1|	66106	.	CG	C	339.73	.	AC=1;AF=0.500;AN=2;BaseQRankSum=1.453;ClippingRankSum=2.335;DP=26;FS=21.312;MLEAC=1;MLEAF=0.500;MQ=60.00;MQ0=0;MQRankSum=0.934;QD=13.07;ReadPosRankSum=1.505	GT:AD:DP:GQ:PL	0/1:15,11:26:99:377,0,7869
+gi|17233403|ref|NC_003277.1|	66114	.	TGC	T	339.73	.	AC=1;AF=0.500;AN=2;BaseQRankSum=1.623;ClippingRankSum=1.776;DP=33;FS=22.989;MLEAC=1;MLEAF=0.500;MQ=60.00;MQ0=0;MQRankSum=-1.050;QD=10.29;ReadPosRankSum=2.196	GT:AD:DP:GQ:PL	0/1:22,11:33:99:377,0,7869
+gi|17233403|ref|NC_003277.1|	66119	.	TGGC	T	339.73	.	AC=1;AF=0.500;AN=2;BaseQRankSum=0.059;ClippingRankSum=0.676;DP=51;FS=24.097;MLEAC=1;MLEAF=0.500;MQ=60.00;MQ0=0;MQRankSum=0.605;QD=6.66;ReadPosRankSum=2.012	GT:AD:DP:GQ:PL	0/1:41,10:51:99:377,0,7869
+gi|17233403|ref|NC_003277.1|	66124	.	G	GAAAAAAA	339.73	.	AC=1;AF=0.500;AN=2;BaseQRankSum=-0.578;ClippingRankSum=0.382;DP=55;FS=20.585;MLEAC=1;MLEAF=0.500;MQ=60.00;MQ0=0;MQRankSum=0.033;QD=6.18;ReadPosRankSum=3.000	GT:AD:DP:GQ:PL	0/1:45,10:55:99:377,0,7869
+gi|17233403|ref|NC_003277.1|	66126	.	T	A	348.77	.	AC=1;AF=0.500;AN=2;BaseQRankSum=0.781;ClippingRankSum=0.267;DP=56;FS=23.793;MLEAC=1;MLEAF=0.500;MQ=60.00;MQ0=0;MQRankSum=0.952;QD=6.23;ReadPosRankSum=2.685	GT:AD:DP:GQ:PL	0/1:46,10:56:99:377,0,7869
