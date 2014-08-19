@@ -15,13 +15,13 @@ library(plyr)
 ```
 
 ```{r echo = F, warning=FALSE, message=FALSE}
-snp_vcf_files <- list.files()[grep("^S.*vcf$", c(list.files()), value = F)]
+snp_vcf_files <- list.files(path = "demo_vcfs")[grep("^S.*vcf$", c(list.files(path = "demo_vcfs")), value = F)]
 
 #%#%#% generating a dataframe combining the pileup parse files
 
 snp_caller_gatk = data.frame()
 for(i in 1:length(snp_vcf_files)){
-  fileTable <- read.table(snp_vcf_files[i], header = F, sep = "\t")
+  fileTable <- read.table(str_c("demo_vcfs/",snp_vcf_files[i],sep = ""), header = F, sep = "\t")
   colnames(fileTable) <- c("Control", "Location", "ID", "reference","alternative","qual", 
                            "filter","INFO","FORMAT","other")
   fileTable$dataset <- snp_vcf_files[i]#gsub(".sort.realign.vcf", "",snp_vcf_files[i])
@@ -111,9 +111,10 @@ perf_merge <- function(ds1, ds2, name1, name2, metric, metric.2 = NULL){
 ```
 
 
-## 2D plot performance metric vs quality score
+## Single Peformance Metric
 Shaded region indicates the 95% confidence interval calculated from the eight replicate datasets.
 
+### Dynamic contingency tables
 ```{r echo = F, warning=FALSE, message=FALSE}
 metrics <- as.list(c("acc", "spec","sens","prec","fpr"))
 single_metrics_df <- ldply(.data = metrics,ds1 = pred.HC, ds2 = pred.UG,name1 = "Haplotype Caller", name2 = "Unified Genotyper",.fun = perf_merge)
@@ -125,44 +126,34 @@ single_metrics_df$metric[single_metrics_df$metric == "fpr"] <- "False positive r
 
 ggplot(single_metrics_df) + 
     geom_vline(aes(xintercept = 3195.79), linetype = 2) + 
-    geom_smooth(aes(x = x.value, y = y.value, color = class)) + 
+    geom_smooth(aes(x = x.value, y = y.value, color = class), family = "binomial") + 
     facet_wrap(~metric, ncol = 1)  +
     labs(x= "Quality Score", y =  "Metric Value", color = "Algorithm") + 
     theme_bw()
-ggplot(single_metrics_df[single_metrics_df$x.value == 3195.79,]) + geom_boxplot(aes(x = class, y = y.value)) + 
+```
+
+### Static contingency tables
+```{r echo = F, warning=FALSE, message=FALSE}
+static_df <- single_metrics_df[single_metrics_df$x.value == 3195.79,]
+static_summary <- ddply(static_df, .variables = c("class", "metric"), summarize, med = median(y.value), uci = quantile(y.value, 0.975), lci = quantile(y.value, 0.025))
+ggplot(static_summary) + geom_bar(aes(x = class, y = med), stat = "identity", fill = "grey" ) + 
+    geom_errorbar(aes(x = class, ymax = uci,ymin = lci), width = 0.1) +
     facet_wrap(~metric, ncol = 1)  +
     labs(x= "Algorithm", y =  "Metric Value") + 
     theme_bw()
 ```
 
-## Pairwise plots
-```{r echo = F, warning=FALSE, message=FALSE}
-perf1 <- perf_merge(pred.HC, pred.UG,"HC","UG", "tpr","fpr")
-ggplot(perf1) + 
-    geom_smooth(aes(x = x.value,y = y.value, color = class)) +
-    labs(x= "Sensitivity", y = "False Positive Rate", color = "Algorithm") + 
-    theme_bw()
-```
-
-## precision/recall curve 
+## Two performance metrics
+### Dynamic contingency tables: precision/recall curve 
 ```{r echo=F, warning=FALSE, message=FALSE}
 perf2 <- perf_merge(pred.HC, pred.UG,"HC","UG", "rec","prec")
 ggplot(perf2) + 
-    geom_smooth(aes(x = x.value,y = y.value, color = class)) +
+    geom_smooth(aes(x = x.value,y = y.value, color = class), family = "binomial") +
     labs(x= "Precision", y = "Recall", color = "Algorithm") + 
     theme_bw()
 ```
 
-## sensitivity/specificity curve (x-axis: specificity, y-axis: sensitivity)
-```{r echo = F, warning=FALSE, message=FALSE}
-perf3 <- perf_merge(pred.HC, pred.UG,"HC","UG", "sens","spec")
-ggplot(perf3) + 
-    geom_smooth(aes(x = x.value,y = y.value, color = class)) +
-    labs(x= "Spectivity", y = "Sensitivity", color = "Algorithm") + 
-    theme_bw()
-```
-
-## 2D static scatter plot
+## Static contingency tables
 ```{r echo = F, warning=FALSE, message=FALSE}
 twoMetric <- single_metrics_df[single_metrics_df$x.value == 3195.79 & single_metrics_df$metric %in% c("Specificity", "Sensitivity"),]
 twoMetricSummary <- ddply(twoMetric, .(class, metric), summarize, metric_mean = mean(y.value), 

@@ -7,10 +7,6 @@ output: html_document
 
 Table of next generation sequencing datasets for use in evaluating performance of variant calling pipelines.  These datasets selected met the following criteria, single sample sequnced that has been multiple times, this can include being sequenced at multiple sequencing centers, on multiple platforms, or at the sample center using the same platform multiple times.  While closed reference genomes are available for each of the strains, no validated variant call sets exist for these datasets.
 
-All datasets are genomic
-
-Table with strains and reference genome accession #
-
 ```{r, echo=FALSE,message=FALSE}
 # loading required libraries
 library(stringr)
@@ -21,8 +17,8 @@ library(ggplot2)
 
 ```{r, echo =FALSE}
 #loading files
-files <- grep("csv",list.files(), value = T)
-sra_df <- ldply(files,read.csv,stringsAsFactors=F,header=T)
+files <- grep("csv",list.files(path = "sra_list"), value = T)
+sra_df <- ldply(str_c("sra_list/",files, sep = ""),read.csv,stringsAsFactors=F,header=T)
 
 # removing NA columns
 sra_df <- sra_df[,colSums(is.na(sra_df))<nrow(sra_df)]
@@ -48,7 +44,6 @@ ggplot(sra_df) + geom_bar(aes(x = Model)) + facet_wrap(~ScientificName, scale = 
 ```{r, echo=F}
 ggplot(sra_df) + geom_bar(aes(x = CenterName)) + theme_bw() + coord_flip()
 ```
-
 
 ```{r, echo=FALSE,results='asis'}
 library(knitr)
