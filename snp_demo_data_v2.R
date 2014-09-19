@@ -13,7 +13,7 @@ library(reshape2)
 library(plyr)
 library(stringr)
 
-setwd("~/Desktop/snp_vcfs/")
+setwd("demo_vcfs/")
 
 
 
@@ -44,14 +44,14 @@ library(stringr)
 # defining ture variants as variants with median quality scores of greater than 2000
 snp_summary <- ddply(snp_calls, .(Control, Location), summarize, count = length(dataset), medqual = median(qual))
 snp_summary$ref_call <- 1
-snp_summary$ref_call[snp_summary$medqual < 3000] <- 0
-#resulting in 30 positive and 89 negatives
+snp_summary$ref_call[snp_summary$medqual < 2500] <- 0
+
 
 snp_calls$dataset <- str_replace(snp_calls$dataset,".vcf",replacement="")
 snp_calls$dataset <- str_replace(snp_calls$dataset,".sort",replacement="")
 snp_calls$dataset <- str_replace(snp_calls$dataset,".realign",replacement="")
-datasets_keep <- unique(snp_calls$dataset)[c(9,10,31,32)]# [c(1,9,18,27)]
-snp_calls <- subset(snp_calls[snp_calls$dataset %in% datasets_keep,], 
+#datasets_keep <- unique(snp_calls$dataset)[c(9,10,31,32)]# [c(1,9,18,27)]
+snp_calls <- subset(snp_calls, 
                     select = c(Control, Location, qual, dataset))
 #setting max value of qual to 5000
 snp_calls$qual[snp_calls$qual > 5000] <- 5000
@@ -59,4 +59,4 @@ snp_calls <- dcast(snp_calls, Control*Location~dataset, value.var="qual", fill=0
 snp_calls <- join(snp_calls, snp_summary)
 snp_calls <- subset(snp_calls, select = -c(count,medqual, Control, Location))
 # Need to figure out how to incorporate the random and perfect datasets into the ROCR analysis
-write.csv(snp_calls, "~/Desktop/snp_demo_data.csv", row.names=F)
+write.csv(snp_calls, "../snp_demo_data.csv", row.names=F)

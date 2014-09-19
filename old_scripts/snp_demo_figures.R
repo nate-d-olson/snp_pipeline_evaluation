@@ -6,7 +6,7 @@ library(ROCR)
 library(plyr)
 
 ## Load data
-snp_calls <- read.csv("~/Desktop/snp_demo_data.csv")
+snp_calls <- read.csv("snp_demo_data.csv")
 
 ## predictions 
 predict.UG <- as.list(snp_calls[,seq(1,ncol(snp_calls)-1,2)])
@@ -28,8 +28,15 @@ perfS4Todf <- function(perf){
 }
 
 perf_plot <- function(perf_df, i){ 
+  if(i == "phi"){
     return(ggplot(perf_df) + 
-               geom_smooth(aes(x = x.value,y = y.value, color = class)) +
+             geom_smooth(aes(x = x.value,y = y.value, color = class)) +
+             labs(x= "Quality Score", y =  i, color = "Algorithm") + 
+             theme_bw())
+  }
+  return(ggplot(perf_df) + 
+               geom_smooth(aes(x = x.value,y = y.value, color = class), family = "binomial") +
+               ylim(0,1) + 
                labs(x= "Quality Score", y =  i, color = "Algorithm") + 
                theme_bw())
 }
@@ -55,35 +62,40 @@ perf_merge <- function(ds1, ds2, name1, name2, metric, metric.2 = NULL){
     return(rbind(perf.1.df,perf.2.df))  
 }
 
+metric_names = c(sens = "Sensitivity",spec ="Specificity", prec = "Precision", 
+                fpr= "False Positive Rate",acc = "Accuracy",phi = "Phi Correlation Coefficient",
+                f= "Precision-recall F measure")
 for(i in c("sens","spec","prec","fpr","acc","phi","f")){
+  
     perf <- perf_merge(pred.HC, pred.UG,"HC","UG", i)
-    ggsave(str_c(i,".pdf",sep = ""),perf_plot(perf, i))
+    print(perf_plot(perf, metric_names[i]))
+   # ggsave(str_c(i,".pdf",sep = ""))
 }
 
 
 ## Pairwise plots
 perf1 <- perf_merge(pred.HC, pred.UG,"HC","UG", "tpr","fpr")
 ggplot(perf1) + 
-    geom_smooth(aes(x = x.value,y = y.value, color = class)) +
+    geom_smooth(aes(x = x.value,y = y.value, color = class), method = "glm", family = "binomial") +
     labs(x= "Sensitivity", y = "False Positive Rate", color = "Algorithm") + 
     theme_bw()
-ggsave(str_c("tpr_fpr",".png",sep = ""), width = 5.5, height = 4.5)
+#ggsave(str_c("tpr_fpr",".png",sep = ""), width = 5.5, height = 4.5)
 ## precision/recall curve 
 perf2 <- perf_merge(pred.HC, pred.UG,"HC","UG", "rec","prec")
 ggplot(perf2) + 
-    geom_smooth(aes(x = x.value,y = y.value, color = class)) +
+    geom_smooth(aes(x = x.value,y = y.value, color = class), family = "binomial") +
     labs(x= "Precision", y = "Recall", color = "Algorithm") + 
     theme_bw()
-ggsave(str_c("pre_rec",".pdf",sep = ""))
+#ggsave(str_c("pre_rec",".pdf",sep = ""))
 
 ## sensitivity/specificity curve (x-axis: specificity,
 ## y-axis: sensitivity)
 perf3 <- perf_merge(pred.HC, pred.UG,"HC","UG", "sens","spec")
 ggplot(perf3) + 
-    geom_smooth(aes(x = x.value,y = y.value, color = class)) +
+    geom_smooth(aes(x = x.value,y = y.value, color = class), family = "binomial") +
     labs(x= "Spectivity", y = "Sensitivity", color = "Algorithm") + 
     theme_bw()
-ggsave(str_c("spec_sens",".pdf",sep = ""))
+#ggsave(str_c("spec_sens",".pdf",sep = ""))
 
 
 # faceted single metrics
@@ -101,12 +113,12 @@ ggplot(single_metrics_df) +
     facet_wrap(~metric, ncol = 1)  +
     labs(x= "Quality Score", y =  "Metric Value", color = "Algorithm") + 
     theme_bw()
-ggsave("single_dynamic.png", height = 10, width = 6)
+#ggsave("single_dynamic.png", height = 10, width = 6)
 ggplot(single_metrics_df[single_metrics_df$x.value == 3195.79,]) + geom_boxplot(aes(x = class, y = y.value)) + 
     facet_wrap(~metric, ncol = 1)  +
     labs(x= "Algorithm", y =  "Metric Value") + 
     theme_bw()
-ggsave("single_static.png", height = 10, width = 4)
+#ggsave("single_static.png", height = 10, width = 4)
 
 
 #two metric static scatter plot
@@ -152,3 +164,32 @@ ggplot(single_metrics_df[single_metrics_df$x.value == 3195.79,]) + geom_boxplot(
     labs(x= "Algorithm", y =  "Metric Value") + 
     theme_bw()
 ggsave("single_static.png", height = 10, width = 4)
+
+## -----------------------------------------------------------------------------------------------------------------------------
+## Fig 2 9/19
+metrics <- as.list(c("spec","sens"))
+single_metrics_df <- ldply(.data = metrics,ds1 = pred.HC, ds2 = pred.UG,name1 = "Haplotype Caller", name2 = "Unified Genotyper",.fun = perf_merge)
+single_metrics_df$metric_name[single_metrics_df$metric == "spec"] <- "Specificity"
+single_metrics_df$metric_name[single_metrics_df$metric == "sens"] <- "Sensitivity"
+
+
+### Need to work out better method for finding on value for each dataset
+static_metrics_df <- single_metrics_df[single_metrics_df$x.value == 3195.79,]
+static_metrics_df$x.value <- ifelse(static_metrics_df$class == "Haplotype Caller", 100000, 200000)
+static_metrics_df$table_type <- "Static"
+single_metrics_df$table_type <- "Dynamic"
+
+single_metrics_df <- rbind(single_metrics_df, static_metrics_df)
+
+ggplot() + 
+  geom_vline(mapping = aes(xintercept = 3195.79), 
+             data = single_metrics_df[single_metrics_df$table_type == "Dynamic",],
+             linetype = 2) + 
+  geom_smooth(data = single_metrics_df[single_metrics_df$table_type == "Dynamic",],
+              aes(x = x.value, y = y.value, color = class), family = "binomial") + 
+  geom_boxplot(data = single_metrics_df[single_metrics_df$table_type == "Static",],
+               aes(x = x.value, y = y.value, color = class)) + 
+  scale_x_continuous(breaks = c(0:5,100,200)*1000, labels = c(0,1000,2000,3000,4000,5000,"Haplotype\nCaller","Unified\nGenotyper")) +
+  facet_grid(metric_name~table_type, scale = "free_x")  +
+  labs(y =  "Metric Value", color = "Algorithm") + 
+  theme_bw() + theme(axis.title.x = element_blank())
