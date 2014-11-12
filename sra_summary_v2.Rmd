@@ -1,0 +1,89 @@
+---
+title: "Sequence Datasets for Variant Calling Pipeline Evaluation"
+author: "Nate Olson"
+date: "09/19/2014"
+output: html_document
+runtime: shiny
+---
+
+Table of next generation sequencing datasets for use in evaluating performance of variant calling pipelines.  These datasets selected met the following criteria, single sample sequnced that has been multiple times, this can include being sequenced at multiple sequencing centers, on multiple platforms, or at the sample center using the same platform multiple times.  While closed reference genomes are available for each of the strains, no validated variant call sets exist for these datasets.
+
+```{r, echo=FALSE,message=FALSE}
+# loading required libraries
+library(stringr)
+library(reshape2)
+library(plyr)
+library(ggplot2)
+library(knitr)
+```
+
+```{r, echo =FALSE}
+#loading files
+files <- grep("csv",list.files(path = "sra_list"), value = T)
+sra_df <- ldply(str_c("sra_list/",files, sep = ""),read.csv,stringsAsFactors=F,header=T)
+
+# removing NA columns
+sra_df <- sra_df[,colSums(is.na(sra_df))<nrow(sra_df)]
+
+# removing non-whole genome sequencing datasets
+sra_df <- sra_df[!(sra_df$LibraryStrategy %in% c("MeDIP-Seq","ChIP-Seq")),]
+sra_df <- sra_df[sra_df$LibrarySelection != "PCR",]
+
+# Excluding Ecoli MV straings
+sra_df <- sra_df[!grepl("MV",sra_df$ScientificName),]
+
+# removing columns not needed for summary table
+sra_df <- subset(sra_df, select = -c(ReleaseDate, LoadDate, size_MB, spots, bases, spots_with_mates, avgLength, AssemblyName, Experiment, SRAStudy, BioProject, Study_Pubmed_id, Tumor,TaxID, Submission, Consent, RunHash, ReadHash, LibrarySource, InsertSize, InsertDev,BioSample,LibraryName, LibraryStrategy, LibrarySelection, ProjectID, Platform,LibraryLayout,SampleName))
+sra_df$Dataset <- str_c("[",sra_df$Run,"]","(",sra_df$download_path,")", sep = "")
+sra_df$Run <- NULL; sra_df$download_path <- NULL
+
+```
+
+## Dataset summary
+```{r, echo=F}
+ggplot(sra_df) + geom_bar(aes(x = CenterName, fill = ScientificName)) + theme_bw() + scale_y_log10() + coord_flip() 
+```
+
+## Datasets by Organism
+```{r echo = FALSE}
+```{r, echo = FALSE}
+selectInput("dataset", "Choose Dataset:", c("cars", "iris", "mtcars"))
+
+activeDataset <- reactive({
+  get(input$dataset, pos="package:datasets", inherits=FALSE)
+})
+
+renderTable({
+  head(activeDataset(), 5)
+})
+
+renderPlot({
+  plot(activeDataset())
+})
+```
+
+
+
+
+selectInput("data","",unique(sra_df$ScientificName))
+```
+
+```{r, echo=F, fig.height= 8}
+renderPlot({
+    d <- get(input$data)
+    ggplot(sra_df[sra_df$ScientifiName == d,]) + geom_bar(aes(x = Model)) + theme_bw() + theme(axis.text.x = element_text(angle = 90))
+})
+
+```
+
+```{r, echo=FALSE,results='asis'}
+numericInput("rows", "How many datasets?", 5)
+
+renderTable({
+  kable(head(sra_df, input$rows), format = 'markdown',row.names = F)
+})
+#selectInput("data","",unique(sra_df$ScientificName))
+#renderTable(kable(sra_df[sra_df$ScientifiName == d,],format = 'markdown',row.names = F))
+```
+
+

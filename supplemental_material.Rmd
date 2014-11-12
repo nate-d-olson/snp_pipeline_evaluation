@@ -2,7 +2,15 @@
 title: "Supplemental Material-Performance Metrics"
 author: "Nate Olson"
 date: "August 18, 2014"
-output: html_document
+output:
+  word_document: default
+  html_document:
+    css: ~/Desktop/screen.css
+    keep_md: yes
+    number_sections: yes
+    self_contained: no
+    theme: null
+    toc: yes
 ---
 
 ```{r echo = F, message=FALSE}
@@ -55,9 +63,7 @@ snp_calls <- subset(snp_calls, select = -c(count,medqual, Control, Location))
 
 ```
 
-To demonstrate the different performance metrics that can be used to evaluate SNP calling pipeline we used variant calls for sequence datasets for the NIST *S. enterica* genomic DNA reference material.  While we are in the process of characterizing the materials the results presented here and in the main manuscript are for demonstration purposes and the variants identified as true variants were defined solely for demonstration purposes and not represent a known biological variant.  
-
-To generate the demonstartion data sequence data for eight replicate vials of the *S. enterica* NIST microbial genomic DNS reference material was mapped to a *Salmonella enterica* serovar Typhimurium LT2 reference genome in the GenBank database (NC_003197 and NC_003277) using the BWA MEM mapping algorithm (http://bio-bwa.sourceforge.net/).  Variants were called using the GenomeAnalysisTK UnifiedGenotyper and Haplotype caller, variant calling algorithm (https://www.broadinstitute.org/gatk/).  The union of the variant call sets was defined as the variant population.  Variants with median quality scores less then 2500 were defined as false positives.  This value was selected as it provided approximately equal numbers of positive (n = `r sum(snp_calls$ref)` and negative (n = `r nrow(snp_calls) - sum(snp_calls$ref)`) variants in the truth set.  Additionally, for demonstration purposes quality scores were cut off at 5000 and for individual variant call sets where variants in the truth set were not called a quality score of zero was assigned.
+To demonstrate the different performance metrics that can be used to evaluate SNP calling pipeline we used variant calls for sequence datasets for the NIST *S. enterica* genomic DNA reference material.  While we are in the process of characterizing the materials the results presented here and in the main manuscript are for demonstration purposes and the variants identified as true variants were defined solely for demonstration purposes and not represent a known biological variant.  To generate the demonstartion data sequence data for eight replicate vials of the *S. enterica* NIST microbial genomic DNS reference material was mapped to a *Salmonella enterica* serovar Typhimurium LT2 reference genome in the GenBank database (NC_003197 and NC_003277) using the BWA MEM mapping algorithm (http://bio-bwa.sourceforge.net/).  Variants were called using the GenomeAnalysisTK UnifiedGenotyper and Haplotype caller, variant calling algorithm (https://www.broadinstitute.org/gatk/).  The union of the variant call sets was defined as the variant population.  Variants with median quality scores less then 2500 were defined as false positives.  This value was selected as it provided approximately equal numbers of positive (n = `r sum(snp_calls$ref)` and negative (n = `r nrow(snp_calls) - sum(snp_calls$ref)`) variants in the truth set.  Additionally, for demonstration purposes quality scores were cut off at 5000 and for individual variant call sets where variants in the truth set were not called a quality score of zero was assigned.
 
 The ROCR package was used to calcuate the performance metrics and ggplot2 was used to plot the performance metrics.  See the github site for code use to generate this document and the generate the demonstration dataset
 
@@ -114,10 +120,10 @@ perf_merge <- function(ds1, ds2, name1, name2, metric, metric.2 = NULL){
 ## Single Peformance Metric
 Shaded region indicates the 95% confidence interval calculated from the eight replicate datasets.
 
-### Dynamic contingency tables
+### Continuous Parameter
 ```{r echo = F, warning=FALSE, message=FALSE}
 metrics <- as.list(c("acc", "spec","sens","prec","fpr"))
-single_metrics_df <- ldply(.data = metrics,ds1 = pred.HC, ds2 = pred.UG,name1 = "Haplotype Caller", name2 = "Unified Genotyper",.fun = perf_merge)
+single_metrics_df <- ldply(.data = metrics,ds1 = pred.HC, ds2 = pred.UG,name1 = "Haplotype\nCaller", name2 = "Unified\nGenotyper",.fun = perf_merge)
 single_metrics_df$metric[single_metrics_df$metric == "acc"] <- "Accuracy"
 single_metrics_df$metric[single_metrics_df$metric == "spec"] <- "Specificity"
 single_metrics_df$metric[single_metrics_df$metric == "sens"] <- "Sensitivity"
@@ -125,26 +131,27 @@ single_metrics_df$metric[single_metrics_df$metric == "prec"] <- "Precision"
 single_metrics_df$metric[single_metrics_df$metric == "fpr"] <- "False positive rate"
 
 ggplot(single_metrics_df) + 
-    geom_vline(aes(xintercept = 3195.79), linetype = 2) + 
-    geom_smooth(aes(x = x.value, y = y.value, color = class), family = "binomial") + 
-    facet_wrap(~metric, ncol = 1)  +
-    labs(x= "Quality Score", y =  "Metric Value", color = "Algorithm") + 
+    geom_vline(aes(xintercept = 3195.79/100), linetype = 2) + 
+    geom_smooth(aes(x = x.value/100, y = y.value, color = class), family = "binomial") + 
+    facet_wrap(~metric)  +
+    labs(x= "Quality Score (100 X)", y =  "Metric Value", color = "Algorithm") + 
     theme_bw()
 ```
 
-### Static contingency tables
+### Discrete Parameter
+Bar plots with 95% confidence intervals (2.5-97.5 quantiles) are presented below, in the manuscript boxplots are used presents a single performance metric relative to a discrete parameter.
 ```{r echo = F, warning=FALSE, message=FALSE}
 static_df <- single_metrics_df[single_metrics_df$x.value == 3195.79,]
 static_summary <- ddply(static_df, .variables = c("class", "metric"), summarize, med = median(y.value), uci = quantile(y.value, 0.975), lci = quantile(y.value, 0.025))
 ggplot(static_summary) + geom_bar(aes(x = class, y = med), stat = "identity", fill = "grey" ) + 
     geom_errorbar(aes(x = class, ymax = uci,ymin = lci), width = 0.1) +
-    facet_wrap(~metric, ncol = 1)  +
+    facet_wrap(~metric)  +
     labs(x= "Algorithm", y =  "Metric Value") + 
     theme_bw()
 ```
 
 ## Two performance metrics
-### Dynamic contingency tables: precision/recall curve 
+### Continuous Parameter: precision/recall curve 
 ```{r echo=F, warning=FALSE, message=FALSE}
 perf2 <- perf_merge(pred.HC, pred.UG,"HC","UG", "rec","prec")
 ggplot(perf2) + 
@@ -153,7 +160,7 @@ ggplot(perf2) +
     theme_bw()
 ```
 
-## Static contingency tables
+## Discrete Parameter
 ```{r echo = F, warning=FALSE, message=FALSE}
 twoMetric <- single_metrics_df[single_metrics_df$x.value == 3195.79 & single_metrics_df$metric %in% c("Specificity", "Sensitivity"),]
 twoMetricSummary <- ddply(twoMetric, .(class, metric), summarize, metric_mean = mean(y.value), 
