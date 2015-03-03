@@ -1,18 +1,18 @@
-##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#########################%%%%%%%
+##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%###############
 ##
 ## Demostration figures for variant calling algorithm validation review
 ##
 ## written by: Nate Olson
 ## NIST
 ## June 2014
-## modified to try and incorporate uncertainties
-##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#########################%%%%%%%
+##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%###############
 
 library(ggplot2)
 library(reshape2)
 library(plyr)
 library(stringr)
 
+cwd <- getwd()
 setwd("demo_vcfs/")
 
 
@@ -59,4 +59,6 @@ snp_calls <- dcast(snp_calls, Control*Location~dataset, value.var="qual", fill=0
 snp_calls <- join(snp_calls, snp_summary)
 snp_calls <- subset(snp_calls, select = -c(count,medqual, Control, Location))
 
-write.csv(snp_calls, "../snp_demo_data.csv", row.names=F)
+setwd(cwd)
+write.csv(snp_calls, "snp_demo_data.csv", row.names=F)
+
