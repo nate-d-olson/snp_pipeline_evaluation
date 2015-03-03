@@ -1,6 +1,5 @@
 # History files
 .Rhistory
-
 # Example code in package build process
 *-Ex.R
 # R data files from past sessions
@@ -8,3 +7,6 @@
 .Rproj.user
 packrat/lib*/
 packrat/src/
+# exclude figure images
+*png
+single_metric.png
