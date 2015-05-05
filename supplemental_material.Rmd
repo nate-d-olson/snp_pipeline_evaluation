@@ -3,7 +3,6 @@ title: "Supplemental Material-Performance Metrics"
 author: "Nate Olson"
 date: "August 18, 2014"
 output:
-  word_document: default
   html_document:
     css: ~/Desktop/screen.css
     keep_md: yes
@@ -11,6 +10,7 @@ output:
     self_contained: no
     theme: null
     toc: yes
+  word_document: default
 ---
 
 ```{r echo = F, message=FALSE}

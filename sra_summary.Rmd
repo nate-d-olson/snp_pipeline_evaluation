@@ -2,7 +2,7 @@
 title: "Sequence Datasets for Variant Calling Pipeline Evaluation"
 author: "Nate Olson"
 date: "08/06/2014"
-output: html_document
+output: word_document
 ---
 
 Table of next generation sequencing datasets for use in evaluating performance of variant calling pipelines.  These datasets selected met the following criteria, single sample sequnced that has been multiple times, this can include being sequenced at multiple sequencing centers, on multiple platforms, or at the sample center using the same platform multiple times.  While closed reference genomes are available for each of the strains, no validated variant call sets exist for these datasets.
